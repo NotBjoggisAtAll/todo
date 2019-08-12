@@ -15,21 +15,21 @@ renderTodoList();
 document.getElementById('add').addEventListener('click', function() {
   var value = document.getElementById('item').value;
   if (value) {
-    addItem(value);
+	addItem(value);
   }
 });
 
 document.getElementById('item').addEventListener('keydown', function (e) {
   var value = this.value;
   if ((e.code === 'Enter' || e.code === 'NumpadEnter') && value) {
-    addItem(value);
+	addItem(value);
   }
 });
 
 function addItem (value) {
   addItemToDOM(value);
   document.getElementById('item').value = '';
-
+  sendItemToAPI(value);
   data.todo.push(value);
   dataObjectUpdated();
 }
@@ -38,13 +38,13 @@ function renderTodoList() {
   if (!data.todo.length && !data.completed.length) return;
 
   for (var i = 0; i < data.todo.length; i++) {
-    var value = data.todo[i];
-    addItemToDOM(value);
+	var value = data.todo[i];
+	addItemToDOM(value);
   }
 
   for (var j = 0; j < data.completed.length; j++) {
-    var value = data.completed[j];
-    addItemToDOM(value, true);
+	var value = data.completed[j];
+	addItemToDOM(value, true);
   }
 }
 
@@ -59,9 +59,9 @@ function removeItem() {
   var value = item.innerText;
 
   if (id === 'todo') {
-    data.todo.splice(data.todo.indexOf(value), 1);
+	data.todo.splice(data.todo.indexOf(value), 1);
   } else {
-    data.completed.splice(data.completed.indexOf(value), 1);
+	data.completed.splice(data.completed.indexOf(value), 1);
   }
   dataObjectUpdated();
 
@@ -75,11 +75,11 @@ function completeItem() {
   var value = item.innerText;
 
   if (id === 'todo') {
-    data.todo.splice(data.todo.indexOf(value), 1);
-    data.completed.push(value);
+	data.todo.splice(data.todo.indexOf(value), 1);
+	data.completed.push(value);
   } else {
-    data.completed.splice(data.completed.indexOf(value), 1);
-    data.todo.push(value);
+	data.completed.splice(data.completed.indexOf(value), 1);
+	data.todo.push(value);
   }
   dataObjectUpdated();
 
@@ -119,4 +119,26 @@ function addItemToDOM(text, completed) {
   item.appendChild(buttons);
 
   list.insertBefore(item, list.childNodes[0]);
+}
+
+
+/**
+ * Method for sending to-do item to API
+ */
+function sendItemToAPI(item) {
+	const req = new XMLHttpRequest();
+	req.open('POST', '/add');
+	req.setRequestHeader('Content-Type', 'application/json');
+	req.send(JSON.stringify({ item: item}));
+
+	req.addEventListener('load', () => {
+		console.log(req.responseText);
+		console.log("Request done");
+	});
+
+	req.addEventListener('error', (e) => {
+		//	console.log(req.responseText);
+			console.log("Shit");
+			console.log(e);
+		});
 }
